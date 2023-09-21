@@ -1,3 +1,3 @@
 module.exports = {
-  extends: ['plugin:hydrogen/recommended'],
+  extends: ['standard', 'plugin:hydrogen/recommended'],
 };
