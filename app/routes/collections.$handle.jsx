@@ -1,4 +1,5 @@
 import { useLoaderData } from "@remix-run/react"
+import { getPaginationVariables } from "@shopify/hydrogen"
 import { json } from "@shopify/remix-oxygen"
 import ProductGrid from "~/components/product/ProductGrid"
 
@@ -11,9 +12,10 @@ export const handle = {
   seo,
 }
 
-export async function loader({ params, context }) {
+export async function loader({ params, context, request }) {
+  const paginationVariables = getPaginationVariables(request, { pageBy: 4 })
   const { handle } = params
-  const { collection } = await context.storefront.query(COLLECTION_QUERY, { variables: { handle } })
+  const { collection } = await context.storefront.query(COLLECTION_QUERY, { variables: { ...paginationVariables, handle } })
 
   if (!collection) throw new Response(null, { status: 404 })
 
@@ -52,14 +54,26 @@ export default function Collection() {
 }
 
 
+
 const COLLECTION_QUERY = `#graphql
-  query CollectionDetails($handle: String!) {
+  query CollectionDetails(
+    $handle: String!
+    $first: Int
+    $last: Int
+    $startCursor: String
+    $endCursor: String
+  ) {
     collection(handle: $handle) {
       id
       title
       description
       handle
-      products(first: 4) {
+      products(
+        first: $first,
+        last: $last,
+        before: $startCursor,
+        after: $endCursor,
+      ) {
         nodes {
           id
           title
@@ -85,7 +99,13 @@ const COLLECTION_QUERY = `#graphql
             }
           }
         }
+        pageInfo {
+          hasPreviousPage
+          hasNextPage
+          startCursor
+          endCursor
+        }
       }
     }
   }
-`;
+  `;
