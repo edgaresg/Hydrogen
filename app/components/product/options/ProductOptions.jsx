@@ -6,7 +6,7 @@ export default function ProductOptions({ options, selectedVariant }) {
 
   const navigation = useNavigation()
 
-  const paramsWithDefaults = (() => {
+  const paramsWithDefaults = () => {
     const defaultParams = new URLSearchParams(currentSearchParams)
 
     if (!selectedVariant) {
@@ -20,11 +20,11 @@ export default function ProductOptions({ options, selectedVariant }) {
     }
 
     return defaultParams
-  })()
+  }
 
   const searchParams = navigation.location
     ? new URLSearchParams(navigation.location.search)
-    : paramsWithDefaults;
+    : paramsWithDefaults();
 
   return (
     <div className="grid gap-4 mb-6">
